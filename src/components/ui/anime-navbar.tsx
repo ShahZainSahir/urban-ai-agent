@@ -43,7 +43,7 @@ export function AnimeNavBar({ items, className, defaultActive = "Home" }: NavBar
     <div className="fixed top-5 left-0 right-0 z-[9999]">
       <div className="flex justify-center pt-6">
         <motion.div
-          className="flex items-center gap-1 bg-black/60 border border-emerald-900/30 backdrop-blur-lg py-2 px-2 rounded-full shadow-lg shadow-emerald-950/20 relative"
+          className="flex items-center gap-1 bg-black/60 border border-amber-900/30 backdrop-blur-lg py-2 px-2 rounded-full shadow-lg shadow-amber-950/20 relative"
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: "spring", stiffness: 260, damping: 20 }}
@@ -58,15 +58,19 @@ export function AnimeNavBar({ items, className, defaultActive = "Home" }: NavBar
                 key={item.name}
                 href={item.url}
                 onClick={(e) => {
-                  e.preventDefault()
                   setActiveTab(item.name)
+                  if (item.url.startsWith('#')) {
+                    e.preventDefault()
+                    const id = item.url.slice(1)
+                    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+                  }
                 }}
                 onMouseEnter={() => setHoveredTab(item.name)}
                 onMouseLeave={() => setHoveredTab(null)}
                 className={cn(
                   "relative cursor-pointer text-sm font-mono font-semibold px-5 py-2.5 rounded-full transition-all duration-300",
                   "text-white/50 hover:text-white/90",
-                  isActive && "text-emerald-400"
+                  isActive && "text-amber-400"
                 )}
               >
                 {isActive && (
@@ -79,11 +83,11 @@ export function AnimeNavBar({ items, className, defaultActive = "Home" }: NavBar
                     }}
                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                   >
-                    <div className="absolute inset-0 bg-emerald-500/15 rounded-full blur-md" />
-                    <div className="absolute inset-[-4px] bg-emerald-500/10 rounded-full blur-xl" />
-                    <div className="absolute inset-[-8px] bg-emerald-500/05 rounded-full blur-2xl" />
+                    <div className="absolute inset-0 bg-amber-500/15 rounded-full blur-md" />
+                    <div className="absolute inset-[-4px] bg-amber-500/10 rounded-full blur-xl" />
+                    <div className="absolute inset-[-8px] bg-amber-500/05 rounded-full blur-2xl" />
                     <div
-                      className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/15 to-emerald-500/0"
+                      className="absolute inset-0 bg-gradient-to-r from-amber-500/0 via-amber-500/15 to-amber-500/0"
                       style={{ animation: "shine 3s ease-in-out infinite" }}
                     />
                   </motion.div>
@@ -125,7 +129,7 @@ export function AnimeNavBar({ items, className, defaultActive = "Home" }: NavBar
                   >
                     <div className="relative w-12 h-12">
                       <motion.div
-                        className="absolute w-10 h-10 bg-emerald-400 rounded-full left-1/2 -translate-x-1/2"
+                        className="absolute w-10 h-10 bg-amber-400 rounded-full left-1/2 -translate-x-1/2"
                         animate={
                           hoveredTab
                             ? {
@@ -200,7 +204,7 @@ export function AnimeNavBar({ items, className, defaultActive = "Home" }: NavBar
                               }
                         }
                       >
-                        <div className="w-full h-full bg-emerald-400 rotate-45 transform origin-center" />
+                        <div className="w-full h-full bg-amber-400 rotate-45 transform origin-center" />
                       </motion.div>
                     </div>
                   </motion.div>

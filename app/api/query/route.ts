@@ -18,11 +18,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Only SELECT queries are allowed." }, { status: 403 });
     }
 
-    // 3. Run against Databricks
-    const rawResults = await runQuery(sql);
+    // 3. Run against Databricks (retry up to 3x for warehouse warm-up)
+    let rawResults: any[] | undefined;
+    let lastError: any;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        rawResults = await runQuery(sql) as any[];
+        break;
+      } catch (err) {
+        lastError = err;
+        if (attempt < 2) await new Promise(r => setTimeout(r, 2500));
+      }
+    }
+    if (rawResults === undefined) throw lastError;
 
     // 4. Normalize into consistent card format
-    const results = normalizeResults(rawResults as any[]);
+    const results = normalizeResults(rawResults!);
 
     // 5. Generate plain-English explanation
     const answer = await generateExplanation(question, results);

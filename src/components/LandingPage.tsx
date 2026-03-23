@@ -142,7 +142,7 @@ const navItems = [
   { name: "Features", url: "#features", icon: BarChart3 },
   { name: "Map",      url: "#coverage", icon: MapPin    },
   { name: "Ask AI",   url: "#query",    icon: Terminal  },
-  { name: "Open App", url: "/chat",     icon: Zap       },
+  { name: "Open App", url: "#query",    icon: Zap       },
 ];
 
 /* ─── Feature Cards ─────────────────────────────────────── */
@@ -1298,12 +1298,34 @@ function AuraFeaturesGrid({ items }: { items: BentoItem[] }) {
     return "bg-blue-950/40 text-blue-400/70 border-blue-900/20";
   };
 
+  /* Mobile fallback — simple grid */
   return (
-    <div
-      ref={containerRef}
-      className="relative w-full h-[540px] flex items-center justify-center cursor-default select-none"
-      onClick={() => { setExpandedId(null); setAutoRotate(true); }}
-    >
+    <>
+      {/* Mobile: plain cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:hidden">
+        {items.map((item, i) => (
+          <div key={i} className="relative rounded-2xl border border-amber-900/20 p-2">
+            <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={2} />
+            <div className="rounded-xl bg-[#070d08] border border-amber-900/20 p-5 flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-white/[0.04] border border-amber-900/20">{item.icon}</div>
+                <span className="text-[10px] font-mono px-2 py-1 rounded-md bg-amber-950/40 text-amber-400/60 border border-amber-900/20 uppercase tracking-[0.15em]">{item.status}</span>
+              </div>
+              <div>
+                <h3 className="text-white/90 font-semibold text-sm leading-tight">{item.title}</h3>
+                <p className="text-xs text-white/40 leading-relaxed mt-1">{item.description}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop: orbital */}
+      <div
+        ref={containerRef}
+        className="relative w-full h-[540px] items-center justify-center cursor-default select-none hidden md:flex"
+        onClick={() => { setExpandedId(null); setAutoRotate(true); }}
+      >
       {/* Orbit rings */}
       <div className="absolute w-[394px] h-[394px] rounded-full border border-amber-700/30" />
       <div className="absolute w-[420px] h-[420px] rounded-full border border-amber-900/12" />
@@ -1437,6 +1459,7 @@ function AuraFeaturesGrid({ items }: { items: BentoItem[] }) {
         )}
       </AnimatePresence>
     </div>
+    </>
   );
 }
 
