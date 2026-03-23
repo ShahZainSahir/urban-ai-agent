@@ -33,11 +33,12 @@ LIMIT 8
 
 "corridors" / "safe routes" / "transit" / "infrastructure" / "which areas need safety"
 → urban_ai.urban_safety_index
-→ ORDER BY priority_score DESC (most dangerous corridors) or ASC (safest)
+→ ORDER BY crimes_per_1000_residents DESC (most dangerous corridors) or ASC (safest)
+→ IMPORTANT: urban_safety_index has NO priority_score column. Use crimes_per_1000_residents.
 → Example:
-SELECT u.zip_code, u.total_crimes, u.population, ROUND(u.priority_score, 1) AS priority_score
+SELECT u.zip_code, u.total_crimes, u.population, ROUND(u.crimes_per_1000_residents, 1) AS crimes_per_1000_residents
 FROM urban_ai.urban_safety_index u
-ORDER BY u.priority_score DESC
+ORDER BY u.crimes_per_1000_residents DESC
 LIMIT 8
 
 "compare ZIP codes" / "crime by ZIP" / "which ZIP codes have most crime"
@@ -91,6 +92,7 @@ City mentioned → add WHERE LOWER(city) LIKE '%phoenix%' (only for real city na
 - NEVER JOIN multiple tables — always query ONE table only
 - If a question could use multiple tables, pick the SINGLE best one and query it directly
 - Always use table alias on every column: g.zip_code, g.store_name etc.
+- NEVER use priority_score on urban_safety_index — that column does not exist there. Use crimes_per_1000_residents instead.
 
 User Question: ${question}
 

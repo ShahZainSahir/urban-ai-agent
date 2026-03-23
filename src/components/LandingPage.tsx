@@ -136,14 +136,6 @@ const FAQ_ITEMS = [
   },
 ];
 
-/* ─── Nav Items ─────────────────────────────────────────── */
-const navItems = [
-  { name: "Home",     url: "#hero",     icon: Home     },
-  { name: "Features", url: "#features", icon: BarChart3 },
-  { name: "Map",      url: "#coverage", icon: MapPin    },
-  { name: "Ask AI",   url: "#query",    icon: Terminal  },
-  { name: "Open App", url: "#query",    icon: Zap       },
-];
 
 /* ─── Feature Cards ─────────────────────────────────────── */
 const featureItems: BentoItem[] = [
@@ -1535,6 +1527,9 @@ export default function LandingPage() {
   const [mapResults, setMapResults] = useState<QueryResult[]>([]);
   const [mapVisible, setMapVisible] = useState(false);
 
+  /* ── Open App popup ────────────────────────────────────── */
+  const [openAppPopup, setOpenAppPopup]   = useState(false);
+
   /* ── UI ────────────────────────────────────────────────── */
   const [alertVisible, setAlertVisible]   = useState(true);
   const [toastPhase, setToastPhase]       = useState<ToastPhase>("hidden");
@@ -1752,7 +1747,16 @@ export default function LandingPage() {
         </AnimatePresence>
 
         {/* ── Navbar ──────────────────────────────────────── */}
-        <AnimeNavBar items={navItems} defaultActive="Home" />
+        <AnimeNavBar
+          items={[
+            { name: "Home",     url: "#hero",     icon: Home     },
+            { name: "Features", url: "#features", icon: BarChart3 },
+            { name: "Map",      url: "#coverage", icon: MapPin    },
+            { name: "Ask AI",   url: "#query",    icon: Terminal  },
+            { name: "Open App", url: "#",         icon: Zap,       onSpecialClick: () => setOpenAppPopup(true) },
+          ]}
+          defaultActive="Home"
+        />
 
         {/* ── Lightning Hero ──────────────────────────────── */}
         <section id="hero">
@@ -2140,6 +2144,72 @@ export default function LandingPage() {
       {/* ── Floating UI ─────────────────────────────────────── */}
       <Toast phase={toastPhase} onDismiss={() => setToastPhase("hidden")} />
       <ViewToggle forceDesktop={forceDesktop} setForceDesktop={setForceDesktop} />
+
+      {/* ── Open App Popup ──────────────────────────────────── */}
+      <AnimatePresence>
+        {openAppPopup && (
+          <motion.div
+            className="fixed inset-0 z-[99999] flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setOpenAppPopup(false)}
+          >
+            {/* backdrop */}
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+
+            {/* card */}
+            <motion.div
+              className="relative z-10 bg-[#070d08] border border-amber-900/30 rounded-3xl p-8 max-w-sm w-[90vw] text-center shadow-2xl shadow-amber-950/40"
+              initial={{ scale: 0.7, y: 40, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.7, y: 40, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 320, damping: 24 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* close */}
+              <button
+                onClick={() => setOpenAppPopup(false)}
+                className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
+              >
+                <X className="w-4 h-4 text-white/40" />
+              </button>
+
+              {/* crying emoji */}
+              <motion.div
+                className="text-6xl mb-4 inline-block"
+                animate={{ rotate: [0, -8, 8, -8, 8, 0], y: [0, -4, 0, -4, 0] }}
+                transition={{ duration: 1.4, repeat: Infinity, repeatDelay: 1.2 }}
+              >
+                😭
+              </motion.div>
+
+              {/* tears dripping */}
+              <motion.div
+                className="text-2xl mb-3 inline-block"
+                animate={{ opacity: [0, 1, 0], y: [0, 8, 16] }}
+                transition={{ duration: 1.2, repeat: Infinity, repeatDelay: 0.4 }}
+              >
+                💧💧
+              </motion.div>
+
+              <h3 className="text-white font-bold text-xl font-mono mb-2">
+                app? what app?
+              </h3>
+              <p className="text-white/40 text-sm font-mono leading-relaxed mb-5">
+                we lied. there's no app yet.<br />
+                we're building it, we promise 🤞<br />
+                (probably)
+              </p>
+
+              <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400/70 text-xs font-mono">
+                <Clock className="w-3.5 h-3.5" />
+                <span>coming soon™</span>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

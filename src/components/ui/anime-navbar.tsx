@@ -10,6 +10,7 @@ interface NavItem {
   name: string
   url: string
   icon: LucideIcon
+  onSpecialClick?: () => void
 }
 
 interface NavBarProps {
@@ -58,6 +59,11 @@ export function AnimeNavBar({ items, className, defaultActive = "Home" }: NavBar
                 key={item.name}
                 href={item.url}
                 onClick={(e) => {
+                  if (item.onSpecialClick) {
+                    e.preventDefault()
+                    item.onSpecialClick()
+                    return
+                  }
                   setActiveTab(item.name)
                   if (item.url.startsWith('#')) {
                     e.preventDefault()

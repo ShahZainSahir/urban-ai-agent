@@ -27,10 +27,11 @@ NOTE: No population column in this table.
 TABLE: urban_ai.urban_safety_index  (also called urban_priority_index — same structure)
 USE FOR: ZIP-level risk ranking, corridors, area safety, infrastructure planning
 EXACT COLUMNS:
-  zip_code       string   — ZIP code
-  total_crimes   bigint   — total crimes
-  population     double   — population
-  priority_score double   — danger score 0–864 range. HIGHER = MORE DANGEROUS.
+  zip_code                string   — ZIP code
+  total_crimes            bigint   — total crimes
+  population              double   — population
+  crimes_per_1000_residents double — danger score. HIGHER = MORE DANGEROUS.
+NOTE: urban_safety_index does NOT have a priority_score column. Use crimes_per_1000_residents for ordering.
 NOTE: urban_safety_index and urban_priority_index have the same columns.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
