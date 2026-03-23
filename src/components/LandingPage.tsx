@@ -379,12 +379,12 @@ function LightningHero() {
 
       {/* Glowing sphere — warmer tint */}
       <div
-        className="absolute top-[55%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] rounded-full backdrop-blur-3xl z-[3]"
+        className="absolute top-[55%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] sm:w-[550px] sm:h-[550px] rounded-full backdrop-blur-3xl z-[3]"
         style={{ background: "radial-gradient(circle at 25% 90%, #92400e 18%, #1a0800cc 65%, #000000ed 100%)" }}
       />
 
-      {/* Floating feature items */}
-      <div className="absolute inset-0 z-[6]">
+      {/* Floating feature items — hidden on mobile to avoid overlap */}
+      <div className="absolute inset-0 z-[6] hidden sm:block">
         <FeatureItem name="847K+ Records" value="Phoenix Metro"  position="left-4 sm:left-12 top-[44%]" />
         <FeatureItem name="GPT-4o"        value="AI Engine"      position="left-[22%] top-[33%]"         />
         <FeatureItem name="SELECT-Only"   value="Zero Write Risk" position="right-[22%] top-[33%]"       />
@@ -413,7 +413,7 @@ function LightningHero() {
           initial={{ opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.85, delay: 0.35 }}
-          className="text-6xl md:text-8xl font-bold tracking-tight mb-2"
+          className="text-5xl sm:text-6xl md:text-8xl font-bold tracking-tight mb-2"
         >
           <span className="bg-gradient-to-r from-amber-200 via-orange-300 to-amber-300 bg-clip-text text-transparent">
             Urban Risk
@@ -423,7 +423,7 @@ function LightningHero() {
           initial={{ opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.85, delay: 0.5 }}
-          className="text-6xl md:text-8xl font-bold tracking-tight mb-9"
+          className="text-5xl sm:text-6xl md:text-8xl font-bold tracking-tight mb-6 md:mb-9"
         >
           <span className="bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-300 bg-clip-text text-transparent">
             Intelligence
@@ -479,11 +479,66 @@ function LightningHero() {
 function DisclaimerScreen({ onAccept, isExiting }: { onAccept: () => void; isExiting: boolean }) {
   const [pulse, setPulse] = useState(false);
   const [cardTransform, setCardTransform] = useState("translate(-50%,-50%) rotateX(40deg) scale(0.8)");
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   useEffect(() => {
     const t = setTimeout(() => setPulse(true), 2100);
     return () => clearTimeout(t);
   }, []);
+
+  /* ── shared card body ─────────────────────────────────── */
+  const cardBody = (
+    <>
+      <div className="flex items-center gap-1.5 mb-4">
+        <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
+        <div className="w-2.5 h-2.5 rounded-full bg-amber-500/60" />
+        <div className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
+        <span className="ml-2 text-white/20 text-[10px] font-mono">aura — access gate</span>
+        <span className="ml-auto px-1.5 py-0.5 rounded-full border border-amber-500/20 text-amber-400/40 text-[9px] font-mono tracking-wider">Beta</span>
+      </div>
+      <motion.h2 className="text-lg font-bold text-white mb-1"
+        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+        Before You Enter AURA
+      </motion.h2>
+      <motion.p className="text-white/30 text-[11px] mb-4 font-mono leading-relaxed"
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.18 }}>
+        Experimental AI urban risk platform. Read before proceeding.
+      </motion.p>
+      <div className="space-y-1.5 mb-4">
+        {DISCLAIMER_ITEMS.map(({ icon: Icon, text }, i) => (
+          <motion.div key={i}
+            className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg bg-white/[0.025] border border-amber-900/15"
+            initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.24 + i * 0.08 }}>
+            <Icon className="w-3 h-3 text-amber-400/65 flex-shrink-0" />
+            <span className="text-white/45 text-[11px] font-mono">{text}</span>
+          </motion.div>
+        ))}
+      </div>
+      <motion.p className="text-white/18 text-[10px] font-mono mb-4 px-2.5 py-2 rounded-lg bg-red-500/[0.04] border border-red-500/[0.07] leading-relaxed"
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.72 }}>
+        NOT FOR: law enforcement · policy decisions · public safety determinations.
+      </motion.p>
+      <motion.button
+        onClick={onAccept}
+        className={`w-full py-3 rounded-xl font-semibold text-xs transition-all duration-500 font-mono cursor-pointer ${
+          pulse
+            ? "bg-amber-500 text-black shadow-[0_0_28px_rgba(245,158,11,0.25)]"
+            : "bg-white/[0.06] text-white/40 border border-white/[0.08]"
+        }`}
+        initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.88 }}
+        whileTap={{ scale: 0.97 }}>
+        I understand — enter AURA Beta
+      </motion.button>
+    </>
+  );
 
   return (
     <motion.div
@@ -494,122 +549,66 @@ function DisclaimerScreen({ onAccept, isExiting }: { onAccept: () => void; isExi
     >
       {/* Ambient glow */}
       <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-        <div className="w-[700px] h-[500px] rounded-full bg-amber-500/[0.04] blur-[100px]" />
+        <div className="w-[min(700px,_100vw)] h-[300px] md:h-[500px] rounded-full bg-amber-500/[0.04] blur-[100px]" />
       </div>
 
-      {/* ── PinContainer (exact card.txt structure, amber-themed) ── */}
-      <div
-        className="relative group/pin z-50 cursor-default"
-        onMouseEnter={() => setCardTransform("translate(-50%,-50%) rotateX(0deg) scale(1)")}
-        onMouseLeave={() => setCardTransform("translate(-50%,-50%) rotateX(40deg) scale(0.8)")}
-      >
-        {/* Perspective stage — card lives inside here and tilts on hover */}
+      {isMobile ? (
+        /* ── MOBILE: plain flat card, no 3D ── */
+        <div className="relative z-50 w-[min(340px,_92vw)] rounded-2xl shadow-[0_8px_16px_rgb(0_0_0/0.4)] bg-[#02040A] border border-amber-900/20 p-4 overflow-hidden">
+          {cardBody}
+        </div>
+      ) : (
+        /* ── DESKTOP: 3D tilt PinContainer ── */
         <div
-          style={{ perspective: "1000px", transform: "rotateX(70deg) translateZ(0deg)" }}
-          className="absolute left-1/2 top-1/2 ml-[0.09375rem] mt-4 -translate-x-1/2 -translate-y-1/2"
+          className="relative group/pin z-50 cursor-default"
+          onMouseEnter={() => setCardTransform("translate(-50%,-50%) rotateX(0deg) scale(1)")}
+          onMouseLeave={() => setCardTransform("translate(-50%,-50%) rotateX(40deg) scale(0.8)")}
         >
           <div
-            style={{ transform: cardTransform }}
-            className="absolute left-1/2 p-4 top-1/2 flex justify-start items-start rounded-2xl shadow-[0_8px_16px_rgb(0_0_0/0.4)] bg-[#02040A] border border-amber-900/20 group-hover/pin:border-amber-500/20 transition duration-700 overflow-hidden"
+            style={{ perspective: "1000px", transform: "rotateX(70deg) translateZ(0deg)" }}
+            className="absolute left-1/2 top-1/2 ml-[0.09375rem] mt-4 -translate-x-1/2 -translate-y-1/2"
           >
-            {/* Card content */}
-            <div className="relative z-50 w-[320px]">
-              {/* Traffic-light bar */}
-              <div className="flex items-center gap-1.5 mb-4">
-                <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
-                <div className="w-2.5 h-2.5 rounded-full bg-amber-500/60" />
-                <div className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
-                <span className="ml-2 text-white/20 text-[10px] font-mono">aura — access gate</span>
-                <span className="ml-auto px-1.5 py-0.5 rounded-full border border-amber-500/20 text-amber-400/40 text-[9px] font-mono tracking-wider">Beta</span>
+            <div
+              style={{ transform: cardTransform }}
+              className="absolute left-1/2 p-4 top-1/2 flex justify-start items-start rounded-2xl shadow-[0_8px_16px_rgb(0_0_0/0.4)] bg-[#02040A] border border-amber-900/20 group-hover/pin:border-amber-500/20 transition duration-700 overflow-hidden"
+            >
+              <div className="relative z-50 w-[320px]">
+                {cardBody}
               </div>
+            </div>
+          </div>
 
-              <motion.h2
-                className="text-lg font-bold text-white mb-1"
-                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+          {/* PinPerspective — fades in on hover */}
+          <div className="pointer-events-none w-96 h-80 flex items-center justify-center opacity-0 group-hover/pin:opacity-100 z-[60] transition duration-500">
+            <div className="w-full h-full -mt-7 flex-none inset-0">
+              <div className="absolute top-0 inset-x-0 flex justify-center">
+                <div className="relative flex items-center gap-1.5 z-10 rounded-full bg-[#02040A] py-0.5 px-4 ring-1 ring-amber-900/25">
+                  <Zap size={10} className="text-amber-400" />
+                  <span className="relative z-20 text-amber-400/80 text-xs font-bold font-mono inline-block py-0.5">AURA — Beta Gate</span>
+                  <span className="absolute -bottom-0 left-[1.125rem] h-px w-[calc(100%-2.25rem)] bg-gradient-to-r from-amber-400/0 via-amber-400/90 to-amber-400/0 transition-opacity duration-500 group-hover/pin:opacity-40" />
+                </div>
+              </div>
+              <div
+                style={{ perspective: "1000px", transform: "rotateX(70deg) translateZ(0)" }}
+                className="absolute left-1/2 top-1/2 ml-[0.09375rem] mt-4 -translate-x-1/2 -translate-y-1/2"
               >
-                Before You Enter AURA
-              </motion.h2>
-              <motion.p
-                className="text-white/30 text-[11px] mb-4 font-mono leading-relaxed"
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.18 }}
-              >
-                Experimental AI urban risk platform. Read before proceeding.
-              </motion.p>
-
-              <div className="space-y-1.5 mb-4">
-                {DISCLAIMER_ITEMS.map(({ icon: Icon, text }, i) => (
-                  <motion.div
-                    key={i}
-                    className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg bg-white/[0.025] border border-amber-900/15"
-                    initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.24 + i * 0.08 }}
-                  >
-                    <Icon className="w-3 h-3 text-amber-400/65 flex-shrink-0" />
-                    <span className="text-white/45 text-[11px] font-mono">{text}</span>
-                  </motion.div>
+                {[0, 2, 4].map((delay) => (
+                  <motion.div key={delay}
+                    initial={{ opacity: 0, scale: 0, x: "-50%", y: "-50%" }}
+                    animate={{ opacity: [0, 1, 0.5, 0], scale: 1, z: 0 }}
+                    transition={{ duration: 6, repeat: Infinity, delay }}
+                    className="absolute left-1/2 top-1/2 h-[11.25rem] w-[11.25rem] rounded-[50%] bg-amber-500/[0.07] shadow-[0_8px_16px_rgb(0_0_0/0.4)]"
+                  />
                 ))}
               </div>
-
-              <motion.p
-                className="text-white/18 text-[10px] font-mono mb-4 px-2.5 py-2 rounded-lg bg-red-500/[0.04] border border-red-500/[0.07] leading-relaxed"
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.72 }}
-              >
-                NOT FOR: law enforcement · policy decisions · public safety determinations.
-              </motion.p>
-
-              <motion.button
-                onClick={onAccept}
-                className={`w-full py-2.5 rounded-xl font-semibold text-xs transition-all duration-500 font-mono cursor-pointer ${
-                  pulse
-                    ? "bg-amber-500 text-black shadow-[0_0_28px_rgba(245,158,11,0.25)]"
-                    : "bg-white/[0.06] text-white/40 border border-white/[0.08]"
-                }`}
-                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.88 }}
-                whileTap={{ scale: 0.97 }}
-              >
-                I understand — enter AURA Beta
-              </motion.button>
+              <motion.div className="absolute right-1/2 bottom-1/2 bg-gradient-to-b from-transparent to-amber-500 translate-y-[14px] w-px h-20 group-hover/pin:h-40 blur-[2px]" />
+              <motion.div className="absolute right-1/2 bottom-1/2 bg-gradient-to-b from-transparent to-amber-500 translate-y-[14px] w-px h-20 group-hover/pin:h-40" />
+              <motion.div className="absolute right-1/2 translate-x-[1.5px] bottom-1/2 bg-amber-500 translate-y-[14px] w-[4px] h-[4px] rounded-full z-40 blur-[3px]" />
+              <motion.div className="absolute right-1/2 translate-x-[0.5px] bottom-1/2 bg-amber-300 translate-y-[14px] w-[2px] h-[2px] rounded-full z-40" />
             </div>
           </div>
         </div>
-
-        {/* PinPerspective — invisible by default, fades in on hover (exact card.txt) */}
-        <div className="pointer-events-none w-96 h-80 flex items-center justify-center opacity-0 group-hover/pin:opacity-100 z-[60] transition duration-500">
-          <div className="w-full h-full -mt-7 flex-none inset-0">
-
-            {/* Floating label */}
-            <div className="absolute top-0 inset-x-0 flex justify-center">
-              <div className="relative flex items-center gap-1.5 z-10 rounded-full bg-[#02040A] py-0.5 px-4 ring-1 ring-amber-900/25">
-                <Zap size={10} className="text-amber-400" />
-                <span className="relative z-20 text-amber-400/80 text-xs font-bold font-mono inline-block py-0.5">AURA — Beta Gate</span>
-                <span className="absolute -bottom-0 left-[1.125rem] h-px w-[calc(100%-2.25rem)] bg-gradient-to-r from-amber-400/0 via-amber-400/90 to-amber-400/0 transition-opacity duration-500 group-hover/pin:opacity-40" />
-              </div>
-            </div>
-
-            {/* Ripple rings */}
-            <div
-              style={{ perspective: "1000px", transform: "rotateX(70deg) translateZ(0)" }}
-              className="absolute left-1/2 top-1/2 ml-[0.09375rem] mt-4 -translate-x-1/2 -translate-y-1/2"
-            >
-              {[0, 2, 4].map((delay) => (
-                <motion.div
-                  key={delay}
-                  initial={{ opacity: 0, scale: 0, x: "-50%", y: "-50%" }}
-                  animate={{ opacity: [0, 1, 0.5, 0], scale: 1, z: 0 }}
-                  transition={{ duration: 6, repeat: Infinity, delay }}
-                  className="absolute left-1/2 top-1/2 h-[11.25rem] w-[11.25rem] rounded-[50%] bg-amber-500/[0.07] shadow-[0_8px_16px_rgb(0_0_0/0.4)]"
-                />
-              ))}
-            </div>
-
-            {/* Needle — amber instead of cyan */}
-            <motion.div className="absolute right-1/2 bottom-1/2 bg-gradient-to-b from-transparent to-amber-500 translate-y-[14px] w-px h-20 group-hover/pin:h-40 blur-[2px]" />
-            <motion.div className="absolute right-1/2 bottom-1/2 bg-gradient-to-b from-transparent to-amber-500 translate-y-[14px] w-px h-20 group-hover/pin:h-40" />
-            <motion.div className="absolute right-1/2 translate-x-[1.5px] bottom-1/2 bg-amber-500 translate-y-[14px] w-[4px] h-[4px] rounded-full z-40 blur-[3px]" />
-            <motion.div className="absolute right-1/2 translate-x-[0.5px] bottom-1/2 bg-amber-300 translate-y-[14px] w-[2px] h-[2px] rounded-full z-40" />
-          </div>
-        </div>
-      </div>
+      )}
     </motion.div>
   );
 }
@@ -712,7 +711,7 @@ function RiskCard({ result, index }: { result: QueryResult; index: number }) {
 
   return (
     <motion.div
-      className="flex-shrink-0 w-52 bg-[#070d08] border border-amber-900/20 rounded-2xl p-4 hover:border-amber-800/30 transition-colors"
+      className="flex-shrink-0 w-44 sm:w-52 bg-[#070d08] border border-amber-900/20 rounded-2xl p-3 sm:p-4 hover:border-amber-800/30 transition-colors"
       initial={{ opacity: 0, scale: 0.82, y: 16 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ delay: index * 0.07, type: "spring", stiffness: 280, damping: 22 }}
@@ -769,7 +768,7 @@ function QueryTerminal({
   typedPlaceholder: string;
 }) {
   return (
-    <div className="w-full max-w-3xl mx-auto px-6">
+    <div className="w-full max-w-3xl mx-auto px-3 md:px-6">
       <GlowCard className="rounded-2xl">
         <div className="bg-[#070d08]/90 border border-amber-900/20 rounded-2xl overflow-hidden backdrop-blur-xl">
 
@@ -820,7 +819,7 @@ function QueryTerminal({
           {/* Message feed */}
           <div
             ref={feedRef}
-            className="h-[50vh] overflow-y-auto p-5 space-y-5"
+            className="h-[40vh] md:h-[50vh] overflow-y-auto p-3 md:p-5 space-y-4 md:space-y-5"
             style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(245,158,11,0.1) transparent" }}
           >
             {messages.length === 0 ? (
@@ -1063,7 +1062,7 @@ function Toast({ phase, onDismiss }: { phase: ToastPhase; onDismiss: () => void 
     <AnimatePresence>
       {(phase === "crack" || phase === "open") && (
         <motion.div
-          className="fixed bottom-6 right-6 z-[60] max-w-[320px] w-full"
+          className="fixed bottom-4 left-3 right-3 md:left-auto md:right-6 md:bottom-6 z-[60] md:max-w-[320px]"
           initial={{ opacity: 0, y: 48, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.98 }}
@@ -1127,7 +1126,7 @@ function Toast({ phase, onDismiss }: { phase: ToastPhase; onDismiss: () => void 
 function ViewToggle({ forceDesktop, setForceDesktop }: { forceDesktop: boolean; setForceDesktop: (v: boolean) => void }) {
   return (
     <motion.button
-      className="fixed bottom-6 left-6 z-[60] w-12 h-12 rounded-full bg-[#070d08] border border-amber-900/20 backdrop-blur-xl flex items-center justify-center hover:border-amber-800/30 transition-all"
+      className="hidden md:flex fixed bottom-6 left-6 z-[60] w-12 h-12 rounded-full bg-[#070d08] border border-amber-900/20 backdrop-blur-xl items-center justify-center hover:border-amber-800/30 transition-all"
       whileHover={{ scale: 1.14 }}
       whileTap={{ scale: 0.9 }}
       onClick={() => setForceDesktop(!forceDesktop)}
@@ -1150,7 +1149,7 @@ function ViewToggle({ forceDesktop, setForceDesktop }: { forceDesktop: boolean; 
 ════════════════════════════════════════════════════════════ */
 function Section({ id, children, className = "" }: { id?: string; children: React.ReactNode; className?: string }) {
   return (
-    <section id={id} className={`py-28 px-6 ${className}`}>
+    <section id={id} className={`py-14 px-4 md:py-28 md:px-6 ${className}`}>
       <div className="max-w-6xl mx-auto w-full">{children}</div>
     </section>
   );
@@ -1158,15 +1157,15 @@ function Section({ id, children, className = "" }: { id?: string; children: Reac
 
 function SectionLabel({ tag, title, subtitle }: { tag: string; title: string; subtitle?: string }) {
   return (
-    <div className="text-center mb-16">
+    <div className="text-center mb-8 md:mb-16">
       <span className="text-xs font-mono tracking-[0.3em] uppercase text-amber-400/60">
         {tag}
       </span>
-      <h2 className="text-4xl md:text-5xl font-bold mt-3 text-white tracking-tight">
+      <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mt-3 text-white tracking-tight">
         {title}
       </h2>
       {subtitle && (
-        <p className="text-sm text-white/40 font-mono mt-4 max-w-xl mx-auto leading-relaxed">
+        <p className="text-sm text-white/40 font-mono mt-3 md:mt-4 max-w-xl mx-auto leading-relaxed">
           {subtitle}
         </p>
       )}
@@ -1294,7 +1293,7 @@ function AuraFeaturesGrid({ items }: { items: BentoItem[] }) {
   return (
     <>
       {/* Mobile: plain cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:hidden">
+      <div className="grid grid-cols-1 gap-3 md:hidden">
         {items.map((item, i) => (
           <div key={i} className="relative rounded-2xl border border-amber-900/20 p-2">
             <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={2} />
@@ -1715,7 +1714,7 @@ export default function LandingPage() {
         <AnimatePresence>
           {(queryCount > 0 || ambientRisk !== "neutral") && (
             <motion.div
-              className="fixed top-5 right-4 z-[10000] flex items-center gap-2 pt-6"
+              className="hidden md:flex fixed top-5 right-4 z-[10000] items-center gap-2 pt-6"
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
@@ -1808,7 +1807,7 @@ export default function LandingPage() {
             title="Phoenix Metro Region"
             subtitle="Full coverage of 320+ ZIP codes across Phoenix, Mesa, Tempe, Scottsdale, and surrounding cities."
           />
-          <div className="flex flex-col md:flex-row items-center justify-center gap-16 md:gap-20">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-20">
             <div className="flex flex-col items-center gap-8">
               <LocationMap
                 location="Phoenix Metro, AZ"
@@ -1869,7 +1868,7 @@ export default function LandingPage() {
 
         {/* ── AI Query ─────────────────────────────────────── */}
         <section id="query" className="relative overflow-hidden">
-          <div className="relative z-10 pt-28 px-6">
+          <div className="relative z-10 pt-14 px-4 md:pt-28 md:px-6">
             <div className="max-w-6xl mx-auto w-full">
               <SectionLabel
                 tag="AI Interface"
