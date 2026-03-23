@@ -1,0 +1,279 @@
+You are given a task to integrate an existing React component in the codebase
+
+The codebase should support:
+- shadcn project structure  
+- Tailwind CSS
+- Typescript
+
+If it doesn't, provide instructions on how to setup project via shadcn CLI, install Tailwind or Typescript.
+
+Determine the default path for components and styles. 
+If default path for components is not /components/ui, provide instructions on why it's important to create this folder
+Copy-paste this component to /components/ui folder:
+```tsx
+card-8.tsx
+// components/ui/alert-card.tsx
+import * as React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+
+// Define the props for the AlertCard component
+interface AlertCardProps extends React.HTMLAttributes<HTMLDivElement> {
+  icon?: React.ReactNode;
+  title: string;
+  description: string;
+  buttonText: string;
+  onButtonClick: () => void;
+  isVisible: boolean;
+  onDismiss?: () => void;
+}
+
+const AlertCard = React.forwardRef<HTMLDivElement, AlertCardProps>(
+  ({
+    className,
+    icon,
+    title,
+    description,
+    buttonText,
+    onButtonClick,
+    isVisible,
+    onDismiss,
+    ...props
+  }, ref) => {
+    
+    // Animation variants for the card container
+    const cardVariants = {
+      hidden: { opacity: 0, y: 50, scale: 0.95 },
+      visible: { 
+        opacity: 1, 
+        y: 0, 
+        scale: 1,
+        transition: { 
+          type: "spring", 
+          stiffness: 400, 
+          damping: 25,
+          staggerChildren: 0.1,
+        }
+      },
+      exit: { 
+        opacity: 0, 
+        y: 20, 
+        scale: 0.98,
+        transition: { duration: 0.2 }
+      }
+    };
+
+    // Animation variants for child elements for a staggered effect
+    const itemVariants = {
+      hidden: { opacity: 0, y: 10 },
+      visible: { opacity: 1, y: 0 },
+    };
+
+    return (
+      <AnimatePresence>
+        {isVisible && (
+          <motion.div
+            ref={ref}
+            className={cn(
+              "relative w-full max-w-sm overflow-hidden rounded-2xl p-6 shadow-2xl",
+              "bg-destructive text-destructive-foreground", // Theming with shadcn variables
+              className
+            )}
+            variants={cardVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            role="alert"
+            aria-live="assertive"
+            {...props}
+          >
+            {/* Optional dismiss button */}
+            {onDismiss && (
+              <motion.div variants={itemVariants} className="absolute top-3 right-3">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 rounded-full hover:bg-white/20"
+                  onClick={onDismiss}
+                >
+                  <X className="h-4 w-4" />
+                  <span className="sr-only">Dismiss</span>
+                </Button>
+              </motion.div>
+            )}
+
+            {/* Icon with a subtle pulse animation */}
+            {icon && (
+               <motion.div
+                variants={itemVariants}
+                className="absolute top-6 right-6 flex h-12 w-12 items-center justify-center rounded-full bg-white/10"
+              >
+                 <motion.div
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                >
+                    {icon}
+                </motion.div>
+              </motion.div>
+            )}
+
+            {/* Title */}
+            <motion.h3 variants={itemVariants} className="text-2xl font-bold tracking-tight">
+              {title}
+            </motion.h3>
+
+            {/* Description */}
+            <motion.p variants={itemVariants} className="mt-2 text-sm text-destructive-foreground/80 max-w-[80%]">
+              {description}
+            </motion.p>
+            
+            {/* Action Button */}
+            <motion.div variants={itemVariants} className="mt-6">
+              <Button
+                className="w-full rounded-full bg-primary-foreground py-6 text-base font-semibold text-primary shadow-lg transition-transform duration-200 hover:bg-primary-foreground/90 active:scale-95"
+                onClick={onButtonClick}
+              >
+                {buttonText}
+              </Button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
+  }
+);
+AlertCard.displayName = "AlertCard";
+
+export { AlertCard };
+
+demo.tsx
+// demo.tsx
+import * as React from "react";
+import { Bell } from "lucide-react";
+import { AlertCard } from "@/components/ui/card-8";
+import { Button } from "@/components/ui/button";
+
+export default function AlertCardDemo() {
+  const [isCardVisible, setIsCardVisible] = React.useState(true);
+
+  const handleUnderstood = () => {
+    console.log("User understood the alert.");
+    setIsCardVisible(false);
+  };
+  
+  const handleDismiss = () => {
+    console.log("User dismissed the alert.");
+    setIsCardVisible(false);
+  };
+  
+  // A button to reset the demo and show the card again
+  const handleReset = () => {
+    setIsCardVisible(true);
+  };
+
+  return (
+    <div className="flex h-[400px] w-full flex-col items-center justify-center gap-4">
+      {!isCardVisible && (
+         <Button onClick={handleReset}>Show Alert Card</Button>
+      )}
+
+      <AlertCard
+        isVisible={isCardVisible}
+        title="Don't miss your flight"
+        description="Hi Jonathan, You have a flight today at 02:15 PM. Better to go early to avoid road traffic."
+        buttonText="Okay, I Understand"
+        onButtonClick={handleUnderstood}
+        onDismiss={handleDismiss} // Provide dismiss handler to show the X button
+        icon={<Bell className="h-6 w-6 text-destructive-foreground" />}
+      />
+    </div>
+  );
+}
+```
+
+Copy-paste these files for dependencies:
+```tsx
+shadcn/button
+import * as React from "react"
+import { Slot } from "@radix-ui/react-slot"
+import { cva, type VariantProps } from "class-variance-authority"
+
+import { cn } from "@/lib/utils"
+
+const buttonVariants = cva(
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        destructive:
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        outline:
+          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default: "h-10 px-4 py-2",
+        sm: "h-9 rounded-md px-3",
+        lg: "h-11 rounded-md px-8",
+        icon: "h-10 w-10",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  },
+)
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean
+}
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : "button"
+    return (
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        {...props}
+      />
+    )
+  },
+)
+Button.displayName = "Button"
+
+export { Button, buttonVariants }
+
+```
+
+Install NPM dependencies:
+```bash
+lucide-react, framer-motion, @radix-ui/react-slot, class-variance-authority
+```
+
+Implementation Guidelines
+ 1. Analyze the component structure and identify all required dependencies
+ 2. Review the component's argumens and state
+ 3. Identify any required context providers or hooks and install them
+ 4. Questions to Ask
+ - What data/props will be passed to this component?
+ - Are there any specific state management requirements?
+ - Are there any required assets (images, icons, etc.)?
+ - What is the expected responsive behavior?
+ - What is the best place to use this component in the app?
+
+Steps to integrate
+ 0. Copy paste all the code above in the correct directories
+ 1. Install external dependencies
+ 2. Fill image assets with Unsplash stock images you know exist
+ 3. Use lucide-react icons for svgs or logos if component requires them
